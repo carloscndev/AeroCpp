@@ -3,9 +3,11 @@
 #include<string>
 #include<string_view>
 #include <unistd.h> // For read and write
+#include<fstream>
+#include<sstream>
 
 int main() {
-  
+
   try {
     ServerSocket server(8080);
 
@@ -14,7 +16,7 @@ int main() {
 
       if(client_id >= 0) {
         std::cout << "\n Client connected! 'n";
-        
+
         // 1. Read the incoming HTTP request from browser
         std::vector<char> buffer(2048);
         ssize_t bytes_read = read(client_id, buffer.data(), buffer.size());
@@ -25,8 +27,21 @@ int main() {
           std::cout << "-----------------------\n";
         }
 
-        // 2. WRITE a valid HTTP response back to client
-        std::string html_content = "<h1>Hello from C++ 20 Server</h1>";
+        // 2. READ the html file from the disk drive
+        std::string html_content;
+
+        // Open the file index.html
+        std::ifstream html_file("./src/index.html");
+
+        // Check if the files exist and openend correctly
+        if (html_file.is_open()) {
+            std::stringstream buffer_stream;
+            buffer_stream << html_file.rdbuf(); // Read the file and dump it into the buffer
+            html_content = buffer_stream.str(); // Convert the stream buffer into a standard string
+            html_file.close();
+        }  else {
+            html_content = "<h1>404 Not Found</h1>";
+        }
 
         // Raw HTTP response format (CRLF "\r\n" is mandatory)
         std::string http_response =
@@ -46,7 +61,7 @@ int main() {
     }
   } catch(const std::exception& e) {
     std::cerr << "Fatal Error: " << e.what() << "\n";
-    
+
     return 1;
   }
 
