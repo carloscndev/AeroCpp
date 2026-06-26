@@ -1,0 +1,12 @@
+# Compiled Binaries and Executables
+server
+servidor
+*.o
+*.out
+
+# macOS specific files
+.DS_Store
+
+# IDE configurations (Optional but recommended)
+.vscode/
+.idea/
