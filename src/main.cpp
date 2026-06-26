@@ -31,7 +31,7 @@ int main() {
         std::string html_content;
 
         // Open the file index.html
-        std::ifstream html_file("./src/index.html");
+        std::ifstream html_file("public/index.html");
 
         // Check if the files exist and openend correctly
         if (html_file.is_open()) {
