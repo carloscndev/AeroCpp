@@ -14,7 +14,7 @@ public:
 ServerSocket(int port) {
     // 1. Create the socket
     server_id = socket(AF_INET, SOCK_STREAM, 0);
-    if(server_id < 0) {
+    if (server_id < 0) {
       throw std::runtime_error("Failed to create socket");
     }
 
@@ -43,7 +43,7 @@ ServerSocket(int port) {
 
   // Destructor
   ~ServerSocket() {
-    if(server_id >= 0) {
+    if (server_id >= 0) {
       close(server_id);
     }
   }
@@ -55,7 +55,7 @@ ServerSocket(int port) {
 
     // This block execution until someone visit http://localhost:8080
     int client_id = accept(server_id, (struct sockaddr*)&client_address, &client_len);
-    if(client_id < 0){
+    if (client_id < 0){
       std::cerr << "Warning: Failed to accept client connection\n";
     }
     return client_id;

@@ -15,23 +15,23 @@ class Router {
     Router() = default;
 
     // Register a global middleware that will execute on EVERY single uncoming request
-    void use(const std::unique_ptr<IMiddleware> middleware) {
-        global_middlewares.push_back(std::move(middleware));
+   void use(std::unique_ptr<IMiddleware> middleware) {
+        global_middlewares.emplace_back(std::move(middleware));
     }
 
     // Register a GET route with its handler and optional route-specific middlewares
-    void get(const std::string& path, Handler handler, std::vector<std::unique_ptr<IMiddleware>> router_middlewares = {}) {
-        routes["GET"][path] = RouteData{std::move(handler), std::move(router_middlewares)};
+    void get(const std::string& path, Handler handler, std::vector<std::unique_ptr<IMiddleware>> route_middlewares = {}) {
+        routes["GET"][path] = RouteData{std::move(handler), std::move(route_middlewares)};
     }
 
     // Registers a POST route with its handler and optional route-specific middlewares
-    void get(const std::string& path, Handler handler, std::vector<std::unique_ptr<IMiddleware>> router_middlewares = {}) {
-        routes["POST"][path] = RouteData{std::move(handler), std::move(router_middlewares)};
+   void post(const std::string& path, Handler handler, std::vector<std::unique_ptr<IMiddleware>> route_middlewares = {}) {
+        routes["POST"][path] = RouteData{std::move(handler), std::move(route_middlewares)};
     }
 
 
     // Process the request trough the middleware and routing pipeline
-    HttpResponse.route(const HttpRequest& req) const {
+    HttpResponse route(const HttpRequest& req) const {
 
         // 1. Verify if HTTP Method is supported/register
         auto method_it = routes.find(req.method);
@@ -45,13 +45,15 @@ class Router {
             return error_response(404, "Not Found");
         }
 
+        const RouteData& target_route = route_it->second;
+
         // 3. EXECUTE GLOBAL MIDDLEWARES (pipeline step 1)
-        for(const auto& middleware : global_middlewares) {
+        for (const auto& middleware : global_middlewares) {
             auto early_response = middleware->execute(req);
-            if(early_response.has_value()) {
+            if (early_response.has_value()) {
 
                 // Middleware blocked the request (early return patter)
-                return early_response.value()
+                return early_response.value();
             }
         }
 
@@ -76,13 +78,12 @@ class Router {
     struct RouteData {
         Handler handler;
         std::vector<std::unique_ptr<IMiddleware>> middlewares;
-    }
+    };
 
     // Data Structure: Methods Map -> Paths Map -> Target Route Data
     // Example: route["GET"]["/dashboard"] -> { handler, route_middlewares }
     std::unordered_map<std::string, std::unordered_map<std::string, RouteData>> routes;
-
-    std::vector<std::unique_ptr<IMiddleware>> global_middleware;
+    std::vector<std::unique_ptr<IMiddleware>> global_middlewares;
 
     // Helper to build standardized HTTP error response on the fly
     HttpResponse error_response(int status, const std::string& message) const {
@@ -94,4 +95,3 @@ class Router {
         return res;
     }
 };
-

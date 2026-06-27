@@ -1,4 +1,4 @@
-#pragma
+#pragma once
 #include<string>
 #include<string_view>
 #include<unordered_map>
@@ -18,7 +18,7 @@ class HttpRequest {
         std::string line;
 
         // 1. Parse Request line (e.g. "GET /public/index.html HTTP/1.1")
-        if(std::getline(stream, line)) {
+        if (std::getline(stream, line)) {
             // Remove trailing '\r'
             if(!line.empty() && line.back() == '\r') line.pop_back();
 
@@ -27,7 +27,7 @@ class HttpRequest {
         }
 
         // 2. Parse Headers
-        while(std::getline(stream, line)) {
+        while (std::getline(stream, line)) {
             if(!line.empty() && line.back() == '\r') line.pop_back();
             if(line.empty()) break;
 
